@@ -17,7 +17,7 @@ public class RefDiffExample {
 
 	public static void main(String[] args) {
 		// This is a temp folder to clone or checkout git repositories.
-		File tempFolder = new File("temp");
+		File tempFolder = new File("tmp");
 
 		runJavaExample(tempFolder);
 
