@@ -13,17 +13,27 @@ import org.refactoringminer.util.GitServiceImpl;
 /**
  * Running examples from RefactoringMiner.
  * 
- * @author Osmar Leandro <http://github.com/osmarleandro>
+ * @author Osmar Leandro <https://github.com/osmarleandro>
  * @see {@link https://github.com/tsantalis/RefactoringMiner}
  */
 public class RminerExample {
 	public static void main(String[] args) throws Exception {
 
-		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
+		Repository repo = clone("https://github.com/osmarleandro/refactoring-toy-example.git");
 
-		Repository repo = clone("https://github.com/danilofes/refactoring-toy-example.git");
+		String commitId = "05c1e773878bbacae64112f70964f4f2f7944398";
+		detectAtCommit(repo, commitId);
 
-		detectAtCommit(miner, repo);
+		String startTag = "1.0";
+		String endTag = "1.1";
+		detectBetweenTags(repo, startTag, endTag);
+
+		String startCommitId = "819b202bfb09d4142dece04d4039f1708735019b";
+		String endCommitId = "d4bce13a443cf12da40a77c16c1e591f4f985b47";
+		detectBetweenCommits(repo, startCommitId, endCommitId);
+
+		String branch = "master";
+		detectAll(repo, branch);
 	}
 
 	public static Repository clone(String gitUrl) throws Exception {
@@ -31,8 +41,10 @@ public class RminerExample {
 		return gitService.cloneIfNotExists("tmp/refactoring-toy-example", gitUrl);
 	}
 
-	public static void detectAtCommit(GitHistoryRefactoringMiner miner, Repository repo) {
-		miner.detectAtCommit(repo, "05c1e773878bbacae64112f70964f4f2f7944398", new RefactoringHandler() {
+	public static void detectAtCommit(Repository repo, String commitId) {
+		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
+
+		miner.detectAtCommit(repo, commitId, new RefactoringHandler() {
 			@Override
 			public void handle(String commitId, List<Refactoring> refactorings) {
 				System.out.println("Refactorings at " + commitId);
@@ -43,10 +55,10 @@ public class RminerExample {
 		});
 	}
 
-	public static void detectBetweenTags(GitHistoryRefactoringMiner miner, Repository repo) throws Exception {
-		// start tag: 1.0
-		// end tag: 1.1
-		miner.detectBetweenTags(repo, "1.0", "1.1", new RefactoringHandler() {
+	public static void detectBetweenTags(Repository repo, String startTag, String endTag) throws Exception {
+		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
+
+		miner.detectBetweenTags(repo, startTag, endTag, new RefactoringHandler() {
 			@Override
 			public void handle(String commitId, List<Refactoring> refactorings) {
 				System.out.println("Refactorings at " + commitId);
@@ -57,23 +69,25 @@ public class RminerExample {
 		});
 	}
 
-	public static void detectBetweenCommits(GitHistoryRefactoringMiner miner, Repository repo) throws Exception {
-		// start commit: 819b202bfb09d4142dece04d4039f1708735019b
-		// end commit: d4bce13a443cf12da40a77c16c1e591f4f985b47
-		miner.detectBetweenCommits(repo, "819b202bfb09d4142dece04d4039f1708735019b",
-				"d4bce13a443cf12da40a77c16c1e591f4f985b47", new RefactoringHandler() {
-					@Override
-					public void handle(String commitId, List<Refactoring> refactorings) {
-						System.out.println("Refactorings at " + commitId);
-						for (Refactoring ref : refactorings) {
-							System.out.println(ref.toString());
-						}
-					}
-				});
+	public static void detectBetweenCommits(Repository repo, String startCommitId, String endCommitId)
+			throws Exception {
+		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
+
+		miner.detectBetweenCommits(repo, startCommitId, endCommitId, new RefactoringHandler() {
+			@Override
+			public void handle(String commitId, List<Refactoring> refactorings) {
+				System.out.println("Refactorings at " + commitId);
+				for (Refactoring ref : refactorings) {
+					System.out.println(ref.toString());
+				}
+			}
+		});
 	}
 
-	public static void detectAll(GitHistoryRefactoringMiner miner, Repository repo) throws Exception {
-		miner.detectAll(repo, "master", new RefactoringHandler() {
+	public static void detectAll(Repository repo, String branch) throws Exception {
+		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
+
+		miner.detectAll(repo, branch, new RefactoringHandler() {
 			@Override
 			public void handle(String commitId, List<Refactoring> refactorings) {
 				System.out.println("Refactorings at " + commitId);
